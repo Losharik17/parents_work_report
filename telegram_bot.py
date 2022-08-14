@@ -5,9 +5,10 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from num2t4ru import num2text
-from docx2pdf import convert
+# from docx2pdf import convert
 import re
 import datetime
+import subprocess
 
 
 bot = telebot.TeleBot('5300733750:AAHFpMDYrmWNWopow41US1pREfHptqTPJ_E')
@@ -264,7 +265,7 @@ def create_doc():
 
     doc.save('document.docx')
 
-    convert("document.docx", "document.pdf")
+    generate_pdf("document.docx", "document")
 
     sum_hours = 0
     total_sum = 0
@@ -315,6 +316,18 @@ def modifyBorder(table):
 
         tcPr.append(tcBorders)
         i += 1
+
+
+def generate_pdf(doc_path, path):
+
+    subprocess.call(['soffice',
+                 # '--headless',
+                 '--convert-to',
+                 'pdf',
+                 '--outdir',
+                 path,
+                 doc_path])
+    return doc_path
 
 
 bot.polling(none_stop=True)
