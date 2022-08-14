@@ -49,8 +49,9 @@ def change_price(message):
     if re.match('\d\d\d\d', message.text) is not None:
         try:
             price = int(message.text)
+            bot.send_message(message.from_user.id, f"Цена изменена на {price}")
         except:
-            pass
+            bot.send_message(message.from_user.id, "Что-то пошло не так.\nНе удалось изменить цену")
 
 
 def get_date(message):
@@ -71,7 +72,7 @@ def get_date(message):
         bot.send_message(message.from_user.id, "Создать новый документ /doc\n\n"
                                                "Другие команды /help")
     else:
-        if re.match('\d\d', temp_date) is not None:
+        if re.match('\d', temp_date) is not None:
             for i, element in enumerate(temp_date.split('.')):
                 last_date[i] = str(element)
 
