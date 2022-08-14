@@ -68,7 +68,8 @@ def get_date(message):
         bot.send_document(message.from_user.id, open('document.docx', 'rb'))
         bot.send_document(message.from_user.id, open('document.pdf', 'rb'))
         bot.send_message(message.from_user.id, "Обязательно проверь правильность")
-        bot.send_message(message.from_user.id, "Создать новый документ /doc")
+        bot.send_message(message.from_user.id, "Создать новый документ /doc\n\n"
+                                               "Другие команды /help")
     else:
         if re.match('\d\d', temp_date) is not None:
             for i, element in enumerate(temp_date.split('.')):
@@ -265,7 +266,7 @@ def create_doc():
 
     doc.save('document.docx')
 
-    generate_pdf("document.docx", "document")
+    generate_pdf("document.docx")
 
     sum_hours = 0
     total_sum = 0
@@ -318,7 +319,7 @@ def modifyBorder(table):
         i += 1
 
 
-def generate_pdf(doc_path, path):
+def generate_pdf(doc_path):
     import os
     os.system("lowriter --convert-to pdf" + str(" ") + str(doc_path))
 
