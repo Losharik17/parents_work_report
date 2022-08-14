@@ -319,15 +319,8 @@ def modifyBorder(table):
 
 
 def generate_pdf(doc_path, path):
-
-    subprocess.call(['--headless',
-                 # '--headless',
-                 '--convert-to',
-                 'pdf',
-                 '--outdir',
-                 path,
-                 doc_path])
-    return doc_path
+    import os
+    os.system("lowriter --convert-to pdf" + str(" ") + str(doc_path))
 
 
 bot.polling(none_stop=True)
