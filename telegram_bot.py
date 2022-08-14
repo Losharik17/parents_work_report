@@ -320,7 +320,7 @@ def modifyBorder(table):
 
 def generate_pdf(doc_path, path):
 
-    subprocess.call(['soffice',
+    subprocess.call(['--headless',
                  # '--headless',
                  '--convert-to',
                  'pdf',
