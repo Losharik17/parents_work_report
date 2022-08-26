@@ -5,10 +5,10 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from num2t4ru import num2text
-# from docx2pdf import convert
 import re
 import datetime
 import subprocess
+import os
 
 
 bot = telebot.TeleBot('5300733750:AAHFpMDYrmWNWopow41US1pREfHptqTPJ_E')
@@ -22,15 +22,15 @@ month = ['января', 'февраля', 'марта', 'апреля', 'мая
 price = 2000
 sum_hours = 0
 total_sum = 0
-number = 1031278
+number = ''
 
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
     if message.text == "/doc":
         bot.send_message(message.from_user.id, "Начинаем формирование документа")
-        bot.send_message(message.from_user.id, "Укажи дату в формате дд или дд.мм или дд.мм.гг ")
-        bot.register_next_step_handler(message, get_date)
+        bot.send_message(message.from_user.id, "Укажите номер счёта")
+        bot.register_next_step_handler(message, get_number)
     elif message.text == "/price":
         bot.send_message(message.from_user.id, "Введи новую цену услуги")
         bot.register_next_step_handler(message, change_price)
@@ -42,6 +42,21 @@ def get_text_messages(message):
                                                "Если ранее не было ничего указано, то установится текущий месяц/год")
     else:
         bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help")
+
+
+def get_number(message):
+    global number
+    number = ''
+
+    if re.match('\d{1,}', message.text) is not None:
+        number = message.text.strip()
+        bot.send_message(message.from_user.id, "Укажи дату в формате дд или дд.мм или дд.мм.гг")
+        bot.register_next_step_handler(message, get_date)
+    else:
+        bot.send_message(message.from_user.id, "Указан некорректный номер. Пожалуйста попробуйте ввести номер снова")
+        bot.register_next_step_handler(message, get_number)
+
+
 
 # xxx
 def change_price(message):
@@ -97,7 +112,7 @@ def get_hours(message):
 
 
 def create_doc():
-    global data, first_str, price, sum_hours, total_sum, last_date, month
+    global data, first_str, price, sum_hours, total_sum, last_date, month, temp_date
 
     doc = Document("Schet_na_oplatu.docx")
 
@@ -267,11 +282,15 @@ def create_doc():
 
     doc.save('document.docx')
 
+    if (os.path.isfile('document.pdf')):
+        os.remove('document.pdf')
+
     generate_pdf("document.docx")
 
     sum_hours = 0
     total_sum = 0
     data = last_date = []
+    temp_date = None
 
 
 def set_col_widths(table):
