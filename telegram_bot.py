@@ -282,10 +282,13 @@ def create_doc():
 
     doc.save('document.docx')
 
-    if (os.path.isfile('document.pdf')):
+    if os.path.isfile('document.pdf'):
         os.remove('document.pdf')
 
     generate_pdf("document.docx")
+
+    for index, element in enumerate(doc.paragraphs):
+        print(element.text, index)
 
     sum_hours = 0
     total_sum = 0
