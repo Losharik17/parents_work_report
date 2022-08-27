@@ -7,9 +7,8 @@ from docx.oxml.ns import qn
 from num2t4ru import num2text
 import re
 import datetime
-import subprocess
 import os
-
+from pylovepdf.tools.officepdf import OfficeToPdf
 
 bot = telebot.TeleBot('5300733750:AAHFpMDYrmWNWopow41US1pREfHptqTPJ_E')
 
@@ -82,7 +81,12 @@ def get_date(message):
         bot.send_message(message.from_user.id, 'Документ формируется')
         create_doc()
         bot.send_document(message.from_user.id, open('document.docx', 'rb'))
-        bot.send_document(message.from_user.id, open('document.pdf', 'rb'))
+
+        date_doc = str(datetime.datetime.now().date()).split('-')
+        date_doc.reverse()
+        date_doc = '-'.join(date_doc)
+
+        bot.send_document(message.from_user.id, open(f'officepdf_{date_doc}.pdf', 'rb'))
         bot.send_message(message.from_user.id, "Обязательно проверь правильность")
         bot.send_message(message.from_user.id, "Создать новый документ /doc\n\n"
                                                "Другие команды /help")
@@ -282,13 +286,14 @@ def create_doc():
 
     doc.save('document.docx')
 
-    if os.path.isfile('document.pdf'):
-        os.remove('document.pdf')
 
-    generate_pdf("document.docx")
-
-    for index, element in enumerate(doc.paragraphs):
-        print(element.text, index)
+    t = OfficeToPdf('project_public_fb24d1ea387418adbd6c45801bcf4f17_Bch1yc56906bbadd07ff1f46879a6efad3ffd',
+                    verify_ssl=True, proxies=None)
+    t.add_file('document.docx')
+    t.set_output_folder(os.getcwd())
+    t.execute()
+    t.download()
+    t.delete_current_task()
 
     sum_hours = 0
     total_sum = 0
