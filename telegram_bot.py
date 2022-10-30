@@ -26,21 +26,24 @@ number = ''
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    if message.text == "/doc":
-        bot.send_message(message.from_user.id, "Начинаем формирование документа")
-        bot.send_message(message.from_user.id, "Укажите номер счёта")
-        bot.register_next_step_handler(message, get_number)
-    elif message.text == "/price":
-        bot.send_message(message.from_user.id, "Введи новую цену услуги")
-        bot.register_next_step_handler(message, change_price)
-    elif message.text == "/help":
-        bot.send_message(message.from_user.id, "Нажми /doc, чтобы создать новый документ\n\n"
-                                               "Нажми /price, чтобы изменить цену\n\n"
-                                               "При вводе даты, если ты не укажешь месяц или год, то будет установлен "
-                                               "последний указанный месяц/год.\n"
-                                               "Если ранее не было ничего указано, то установится текущий месяц/год")
-    else:
-        bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help")
+    try:
+        if message.text == "/doc":
+            bot.send_message(message.from_user.id, "Начинаем формирование документа")
+            bot.send_message(message.from_user.id, "Укажите номер счёта")
+            bot.register_next_step_handler(message, get_number)
+        elif message.text == "/price":
+            bot.send_message(message.from_user.id, "Введи новую цену услуги")
+            bot.register_next_step_handler(message, change_price)
+        elif message.text == "/help":
+            bot.send_message(message.from_user.id, "Нажми /doc, чтобы создать новый документ\n\n"
+                                                   "Нажми /price, чтобы изменить цену\n\n"
+                                                   "При вводе даты, если ты не укажешь месяц или год, то будет установлен "
+                                                   "последний указанный месяц/год.\n"
+                                                   "Если ранее не было ничего указано, то установится текущий месяц/год")
+        else:
+            bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help")
+    except:
+        pass
 
 
 def get_number(message):
@@ -78,32 +81,38 @@ def get_date(message):
     temp_date = message.text.replace(',', '.')
 
     if temp_date == '/end':
-        bot.send_message(message.from_user.id, 'Документ формируется')
-        create_doc()
-        bot.send_document(message.from_user.id, open('document.docx', 'rb'))
+        try:
+            bot.send_message(message.from_user.id, 'Документ формируется')
+            create_doc()
+            bot.send_document(message.from_user.id, open('document.docx', 'rb'))
 
-        date_doc = str(datetime.datetime.now().date()).split('-')
-        date_doc.reverse()
-        date_doc = '-'.join(date_doc)
+            date_doc = str(datetime.datetime.now().date()).split('-')
+            date_doc.reverse()
+            date_doc = '-'.join(date_doc)
 
-        bot.send_document(message.from_user.id, open(f'officepdf_{date_doc}.pdf', 'rb'))
-        bot.send_message(message.from_user.id, "Обязательно проверь правильность")
-        bot.send_message(message.from_user.id, "Создать новый документ /doc\n\n"
-                                               "Другие команды /help")
+            bot.send_document(message.from_user.id, open(f'officepdf_{date_doc}.pdf', 'rb'))
+            bot.send_message(message.from_user.id, "Обязательно проверь правильность")
+            bot.send_message(message.from_user.id, "Создать новый документ /doc\n\n"
+                                                   "Другие команды /help")
+        except:
+            pass
     else:
-        if re.match('\d', temp_date) is not None:
-            for i, element in enumerate(temp_date.split('.')):
-                last_date[i] = str(element)
+        try:
+            if re.match('\d', temp_date) is not None:
+                for i, element in enumerate(temp_date.split('.')):
+                    last_date[i] = str(element)
 
-            for i, element in enumerate(last_date):
-                if len(element) == 1:
-                    last_date[i] = '0' + element
-            temp_date = '.'.join(last_date)
-            bot.send_message(message.from_user.id, f'Укажи количество часов для даты: {temp_date}')
-            bot.register_next_step_handler(message, get_hours)
-        else:
-            bot.send_message(message.from_user.id, 'Дата указана некорректно, попробуй ещё')
-            bot.register_next_step_handler(message, get_date)
+                for i, element in enumerate(last_date):
+                    if len(element) == 1:
+                        last_date[i] = '0' + element
+                temp_date = '.'.join(last_date)
+                bot.send_message(message.from_user.id, f'Укажи количество часов для даты: {temp_date}')
+                bot.register_next_step_handler(message, get_hours)
+            else:
+                bot.send_message(message.from_user.id, 'Дата указана некорректно, попробуй ещё')
+                bot.register_next_step_handler(message, get_date)
+        except:
+            pass
 
 
 def get_hours(message):
@@ -191,47 +200,12 @@ def create_doc():
         for idx, width in enumerate(widths):
             row.cells[idx].width = width
 
-    field = table.cell(0, 0).paragraphs[0]
-    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    field = field.add_run('Итого:')
-    field.font.size = Pt(9)
-    field.font.name = 'Arial'
-    field.bold = True
-
-    field = table.cell(1, 0).paragraphs[0]
-    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    field = field.add_run('Без налога (НДС)')
-    field.font.size = Pt(9)
-    field.font.name = 'Arial'
-    field.bold = True
-
-    field = table.cell(2, 0).paragraphs[0]
-    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    field = field.add_run('Всего к оплате:')
-    field.font.size = Pt(9)
-    field.font.name = 'Arial'
-    field.bold = True
-
-    field = table.cell(0, 1).paragraphs[0]
-    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    field = field.add_run(f'{total_sum:,.2f}'.replace(',', ' '))
-    field.font.size = Pt(9)
-    field.font.name = 'Arial'
-    field.bold = True
-
-    field = table.cell(1, 1).paragraphs[0]
-    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    field = field.add_run('–')
-    field.font.size = Pt(9)
-    field.font.name = 'Arial'
-    field.bold = True
-
-    field = table.cell(2, 1).paragraphs[0]
-    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    field = field.add_run(f'{total_sum:,.2f}'.replace(',', ' '))
-    field.font.size = Pt(9)
-    field.font.name = 'Arial'
-    field.bold = True
+    set_small_table_field([0, 0], 'Итого:', table)
+    set_small_table_field([1, 0], 'Без налога (НДС)', table)
+    set_small_table_field([2, 0], 'Всего к оплате:', table)
+    set_small_table_field([0, 1], f'{total_sum:,.2f}'.replace(',', ' '), table)
+    set_small_table_field([1, 1], '–', table)
+    set_small_table_field([2, 1], f'{total_sum:,.2f}'.replace(',', ' '), table)
 
     # добавляем информацию после таблицы
 
@@ -286,7 +260,6 @@ def create_doc():
 
     doc.save('document.docx')
 
-
     t = OfficeToPdf('project_public_fb24d1ea387418adbd6c45801bcf4f17_Bch1yc56906bbadd07ff1f46879a6efad3ffd',
                     verify_ssl=True, proxies=None)
     t.add_file('document.docx')
@@ -299,6 +272,15 @@ def create_doc():
     total_sum = 0
     data = last_date = []
     temp_date = None
+
+
+def set_small_table_field(pos, text, table):
+    field = table.cell(pos[0], pos[1]).paragraphs[0]
+    field.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    field = field.add_run(str(text))
+    field.font.size = Pt(9)
+    field.font.name = 'Arial'
+    field.bold = True
 
 
 def set_col_widths(table):
