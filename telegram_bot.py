@@ -10,7 +10,7 @@ import datetime
 import os
 from pylovepdf.tools.officepdf import OfficeToPdf
 
-bot = telebot.TeleBot('5300733750:AAHFpMDYrmWNWopow41US1pREfHptqTPJ_E')
+bot = telebot.TeleBot('5300733750:AAFkRmag4aYKQNc5hBDRd-fhgRDPEyr-7Us')
 
 data = []
 temp_date = None
@@ -37,7 +37,8 @@ def get_text_messages(message):
         elif message.text == "/help":
             bot.send_message(message.from_user.id, "Нажми /doc, чтобы создать новый документ\n\n"
                                                    "Нажми /price, чтобы изменить цену\n\n"
-                                                   "При вводе даты, если ты не укажешь месяц или год, то будет установлен "
+                                                   "При вводе даты, если ты не укажешь месяц или год, то будет "
+                                                   "установлен "
                                                    "последний указанный месяц/год.\n"
                                                    "Если ранее не было ничего указано, то установится текущий месяц/год")
         else:
