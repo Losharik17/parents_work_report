@@ -335,4 +335,4 @@ def generate_pdf(doc_path):
     os.system("lowriter --convert-to pdf" + str(" ") + str(doc_path))
 
 
-bot.polling(none_stop=True)
+bot.polling(none_stop=True, timeout=60)
